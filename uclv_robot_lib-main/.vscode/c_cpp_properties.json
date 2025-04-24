@@ -1,0 +1,24 @@
+{
+  "configurations": [
+    {
+      "browse": {
+        "databaseFilename": "${default}",
+        "limitSymbolsToIncludedHeaders": false
+      },
+      "includePath": [
+        "/home/gianmarco/Desktop/Test_ws/install/uclv_robot_ros_msgs/include/**",
+        "/home/gianmarco/Desktop/Test_ws/install/uclv_robot_lib/include/**",
+        "/opt/ros/humble/include/**",
+        "/home/gianmarco/Desktop/Test_ws/src/uclv_robot_lib-main/include/**",
+        "/home/gianmarco/Desktop/Test_ws/src/uclv_robot_ros-main/uclv_robot_ros/include/**",
+        "/usr/include/**"
+      ],
+      "name": "ROS",
+      "intelliSenseMode": "gcc-x64",
+      "compilerPath": "/usr/bin/gcc",
+      "cStandard": "gnu11",
+      "cppStandard": "c++14"
+    }
+  ],
+  "version": 4
+}

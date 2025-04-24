@@ -1,0 +1,7 @@
+#goal
+builtin_interfaces/Duration duration
+---
+#result
+bool success
+---
+#feedback
