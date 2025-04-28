@@ -113,6 +113,15 @@ class CLIKNode : public rclcpp::Node
       sensor_msgs::msg::JointState joint_real;
       rclcpp::Subscription<sensor_msgs::msg::JointState>::SharedPtr sub_joint_;
 
+      //Variabili per il filtro
+      double alpha;
+      double beta;
+      double t_pub=0.001;
+      double tau_f=0.00159;
+      std_msgs::msg::Float64MultiArray old_out_msg;
+      std_msgs::msg::Float64MultiArray old_out_msg_filtered;
+      std_msgs::msg::Float64MultiArray out_msg_filtered;
+
 
     public:
       CLIKNode(const rclcpp::NodeOptions& opt = rclcpp::NodeOptions()) : Node("clik", opt)
@@ -171,6 +180,11 @@ class CLIKNode : public rclcpp::Node
           out_msg.data.resize(7);
           //out_msg.data=[0,0,0,0,0,0,0];
 
+          old_out_msg.data.resize(7);
+          out_msg_filtered.data.resize(7);
+          old_out_msg_filtered.data.resize(7);
+          alpha=t_pub/(t_pub+2*tau_f); //0.384615384615385
+          beta= (t_pub-2*tau_f)/(t_pub+2*tau_f); //-0.230769230769231;
 
           sub_joint_ = this->create_subscription<sensor_msgs::msg::JointState>("/franka_state_controller/joint_states", qos, std::bind(&CLIKNode::joint_callback, this, _1));
           angoli_desiderati.point.y=0;
@@ -399,12 +413,16 @@ class CLIKNode : public rclcpp::Node
         calcolo_angoli_attuati(joint_real,2);
         angoli_reali.header.stamp=joint_real.header.stamp;
         angoli_real_->publish(angoli_reali);
-        /*double alpha = Ts_ / (Ts_ + 0.0008);
-        for (size_t i = 0; i < out_msg.data.size(); ++i)
+        
+        //Filtraggio del messaggio
+        for(int i=0;i<(int)out_msg.data.size();i++)
         {
-            out_msg.data[i] = alpha * out_msg.data[i] + (1 - alpha) * joint_real.velocity[i];
-        }*/
-        vel_pub_->publish(out_msg);
+          out_msg_filtered.data[i]=alpha*(out_msg.data[i]+old_out_msg.data[i])-beta*old_out_msg_filtered.data[i];
+        }
+        old_out_msg.data=out_msg.data;
+        old_out_msg_filtered.data=out_msg_filtered.data;
+
+        vel_pub_->publish(out_msg_filtered);
 
       }
 

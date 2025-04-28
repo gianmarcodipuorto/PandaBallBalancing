@@ -70,19 +70,19 @@ class ControllerLQR : public rclcpp::Node
         Eigen::VectorXd zhat = Eigen::VectorXd::Zero(1);
         float z;
         float y;
-        //std::vector<double> K_new= {-2.0804, -0.9602,0.7068, 1.4486, 0.1002, 0.0963, 0.0924, 0.0885}; // Q=1000,0,1,1,1,1,0,0,1 R=1000
+        std::vector<double> K_new= {-2.0804, -0.9602,0.7068, 1.4486, 0.1002, 0.0963, 0.0924, 0.0885}; // Q=1000,0,1,1,1,1,0,0,1 R=1000
         //test
         //std::vector<double> K_new= {-6.4000, -2.0624, 1.4303, 2.9993, 0.2012, 0.1885, 0.1758, 0.1633};   // Q=40000,0,1,1,1,1,0,0,1 R=1000 test1
         //std::vector<double> K_new= {-10.4694, -2.8526, 1.9122, 4.0628, 0.2677, 0.2472, 0.2270, 0.2071};  //Q= 10000,0,1,1,1,1,0,0,1 R=100  test2
         //std::vector<double> K_new= {-2.1422, -1.0384,0.7683, 1.5718, 0.1090, 0.1048, 0.1006, 0.0964}; // Q=1000,100,1,1,0,0,0,0,1 R=1000  test3
-        std::vector<double> K_new= {-2.463759821338347, -1.502920737546973,1.134740653012466, 2.305680133240116, 0.161305336866996, 0.155776073130742, 0.149661854010936, 0.142527206049657}; // Q=1000,1000,1,1,0,0,0,0,1 R=1000 test4
+        //std::vector<double> K_new= {-2.463759821338347, -1.502920737546973,1.134740653012466, 2.305680133240116, 0.161305336866996, 0.155776073130742, 0.149661854010936, 0.142527206049657}; // Q=1000,1000,1,1,0,0,0,0,1 R=1000 test4
         Eigen::Map<Eigen::VectorXd> K_new_ = Eigen::Map<Eigen::VectorXd>(K_new.data(), K_new.size());
 
-        //std::vector<double> K_int= {-1.7778};   // Q=1000,0,1,1,1,1,0,0,1 R=1000
+        std::vector<double> K_int= {-1.7778};   // Q=1000,0,1,1,1,1,0,0,1 R=1000
         //test
         //std::vector<double> K_int= {-1.7124}; / Q=40000,0,1,1,1,1,0,0,1 R=1000   test1
         //std::vector<double> K_int= {-5.2500}; //Q= 10000,0,1,1,1,1,0,0,1 R=100    test2
-        std::vector<double> K_int= {-1.731208663999560};   // Q=1000,1000,1,1,0,0,0,0,1 R=1000  test3
+        //std::vector<double> K_int= {-1.731208663999560};   // Q=1000,1000,1,1,0,0,0,0,1 R=1000  test3
         Eigen::Map<Eigen::VectorXd> K_int_ = Eigen::Map<Eigen::VectorXd>(K_int.data(), K_int.size());
 
         //variabile incrementale
