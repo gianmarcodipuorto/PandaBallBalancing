@@ -163,7 +163,7 @@ class ControllerLQG : public rclcpp::Node
                     timer_->reset();
 
                 }
-                if(fabs(y)>0.10||fabs(z)>0.10)
+                if(sqrt(y * y + z * z) > 0.10) //if(fabs(y)>0.10||fabs(z)>0.10)
                 {   
                     //stampo la posizione della pallina
                     RCLCPP_INFO_STREAM(this->get_logger(),"y: "<<y);

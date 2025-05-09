@@ -183,7 +183,7 @@ class ControllerLQR : public rclcpp::Node
                     RCLCPP_INFO_STREAM(this->get_logger(),"integratore ON");
                 }
 
-                if(fabs(y)>0.1||fabs(z)>0.1)
+                if(sqrt(y * y + z * z) > 0.10) //if(fabs(y)>0.10||fabs(z)>0.10)
                 {   
                     //stampo la posizione della pallina
                     RCLCPP_INFO_STREAM(this->get_logger(),"y: "<<y);
