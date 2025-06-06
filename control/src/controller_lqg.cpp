@@ -118,7 +118,7 @@ class ControllerLQG : public rclcpp::Node
             start_controller_ = this->create_service<std_srvs::srv::SetBool>("controller/start", std::bind(&ControllerLQG::controller_cb_start, this, _1, _2));
 
             //inizializzo il timer
-            timer_= this->create_wall_timer(std::chrono::milliseconds(int(t_camp*1000)), std::bind(&ControllerLQG::controllo_cb, this));
+            timer_= this->create_wall_timer(std::chrono::milliseconds(int(17)), std::bind(&ControllerLQG::controllo_cb, this));
             timer_->cancel();
 
             //inizializzo a zero le variabili di errore e di angolo
@@ -194,9 +194,9 @@ class ControllerLQG : public rclcpp::Node
             p++;
             q++;
             //phi=Kalman(0,soft_start_weight);
-            phi = Kalman(&xhat_y, &Phat_y, &S_y, &K_gain_y, &yhat, &y, &y_des, soft_start_weight, &vel_y_des);
+            phi = Kalman(&xhat_y, &Phat_y, &S_y, &K_gain_y, &yhat, &y, &y_des_filtered, soft_start_weight, &vel_y_des);
             //theta=Kalman(1,soft_start_weight);
-            theta = Kalman(&xhat_z, &Phat_z, &S_z, &K_gain_z, &zhat, &z, &z_des, soft_start_weight, &vel_z_des);
+            theta = Kalman(&xhat_z, &Phat_z, &S_z, &K_gain_z, &zhat, &z, &z_des_filtered, soft_start_weight, &vel_z_des);
 
             geometry_msgs::msg::PointStamped out_msg;
             out_msg.point.y=theta;

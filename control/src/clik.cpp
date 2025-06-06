@@ -348,7 +348,7 @@ class CLIKNode : public rclcpp::Node
           // Assicuro la continuità del quaternione
           quaternion = quaternionContinuity(quaternion, oldQuaternion_);
           quaternion.normalize();
-          oldQuaternion_ = quaternion;  // <-- per il prossimo ciclo
+          oldQuaternion_ = quaternion;  //per il prossimo ciclo
 
           //Calcolo l'errore
           Eigen::Matrix<double, 6, 1> error;
