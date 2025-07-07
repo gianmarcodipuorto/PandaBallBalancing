@@ -40,10 +40,6 @@ target_link_libraries(controller_lqg Eigen3::Eigen)
 ament_target_dependencies(controller_lqg 
       "rclcpp" "geometry_msgs" "sensor_msgs" "uclv_robot_lib" "std_srvs" "realtime_tools" "tf2" "tf2_ros" )
 
-add_executable(controller_lqg_int src/controller_lqg_int.cpp)
-target_link_libraries(controller_lqg_int Eigen3::Eigen)
-ament_target_dependencies(controller_lqg_int 
-      "rclcpp" "geometry_msgs" "sensor_msgs" "uclv_robot_lib" "std_srvs" "realtime_tools" "tf2" "tf2_ros" )
 
 add_executable(controller_lqg_switch src/controller_lqg_switch.cpp)
 target_link_libraries(controller_lqg_switch Eigen3::Eigen)
@@ -56,7 +52,7 @@ ament_target_dependencies(home_server
 
       ########## INSTALL nodes #######################
 install(TARGETS
-clik controller_pd handler controller_lqg controller_lqg_int controller_lqg_switch home_server
+clik controller_pd handler controller_lqg controller_lqg_switch home_server
 DESTINATION lib/${PROJECT_NAME}
 )
 
