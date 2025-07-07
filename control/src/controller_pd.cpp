@@ -20,8 +20,8 @@ class ControllerNode : public rclcpp::Node
     protected:
         //Publisher degli angoli calcolati dall'equazione alle differenze (angolo y è quello intorno alle y e idem per la z)
         rclcpp::Publisher<geometry_msgs::msg::PointStamped>::SharedPtr pub_posa_;
-
-        //subscriber per il topic /position con all'interno la posizione della y e delle z
+        rclcpp::Publisher<geometry_msgs::msg::PointStamped>::SharedPtr pub_des_;
+        
         rclcpp::Subscription<geometry_msgs::msg::PointStamped>::SharedPtr subscriber_pos;
 
         //servizio per avviare il controllore
@@ -73,6 +73,8 @@ class ControllerNode : public rclcpp::Node
 
             // Il publisher per i punti della traiettoria su /desired_pose
             pub_posa_=this->create_publisher<geometry_msgs::msg::PointStamped>("/desired_pose",qos);
+            pub_des_=this->create_publisher<geometry_msgs::msg::PointStamped>("/des_traj",qos);
+
 
             abort_pub_=this->create_publisher<std_msgs::msg::String>("/abort",qos);
 
@@ -146,6 +148,12 @@ class ControllerNode : public rclcpp::Node
 
         void controllo_cb()
         { 
+
+            geometry_msgs::msg::PointStamped des_msg;
+            des_msg.point.y=y_des;
+            des_msg.point.z=z_des;
+            des_msg.header.stamp=this->now();
+            pub_des_->publish(des_msg);
             using namespace std::chrono_literals;
             if(p==0)
             {
@@ -210,6 +218,7 @@ class ControllerNode : public rclcpp::Node
             }
         
             geometry_msgs::msg::PointStamped out_msg;
+            out_msg.header.stamp = this->now();
             out_msg.point.y=theta_temp;
             out_msg.point.z=phi_temp;
             pub_posa_->publish(out_msg);

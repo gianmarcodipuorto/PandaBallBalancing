@@ -82,7 +82,7 @@ class CLIKNode : public rclcpp::Node
       rclcpp::Publisher<geometry_msgs::msg::PointStamped>::SharedPtr angoli_act_;
 
       geometry_msgs::msg::PointStamped angoli_reali;
-      rclcpp::Publisher<geometry_msgs::msg::PointStamped>::SharedPtr angoli_real_;
+      rclcpp::Publisher<geometry_msgs::msg::PointStamped>::SharedPtr real_angles;
 
       //Per i parametri
       std::shared_ptr<rclcpp::ParameterEventHandler> param_subscriber_;
@@ -150,7 +150,7 @@ class CLIKNode : public rclcpp::Node
           vel_pub_=this->create_publisher<std_msgs::msg::Float64MultiArray>("/joint_group_velocity_controller/command",qos);
           angoli_des_=this->create_publisher<geometry_msgs::msg::PointStamped>("angoli_des_",qos);
           angoli_act_=this->create_publisher<geometry_msgs::msg::PointStamped>("angoli_act_",qos);
-          angoli_real_=this->create_publisher<geometry_msgs::msg::PointStamped>("angoli_real_",qos);
+          real_angles=this->create_publisher<geometry_msgs::msg::PointStamped>("real_angles",qos);
 
           // timer of the main control loop (uso un timer che garantisce la giusta frequenza al clik)
           clik_timer_ = this->create_wall_timer(std::chrono::milliseconds((int)(1)), std::bind(&CLIKNode::clik_control_cycle, this));               
@@ -242,37 +242,20 @@ class CLIKNode : public rclcpp::Node
 
         Eigen::Map<const Eigen::VectorXd> q_R(joint_current.position.data(), joint_current.position.size());
         auto q_DH = robot_->joints_Robot2DH(q_R);
-  
-        //Roba del controller
-        q_init.position=joint_current.position;
-        tf2_msgs::msg::TFMessage trasformata; 
-        trasformata.transforms.resize(1);
-        //calcolo la trasformata
-        try
-        {
-            trasformata.transforms[0] = tf_buffer->lookupTransform("panda_link0","panda_link7", tf2::TimePointZero, 5s);
-        }
-        catch (tf2::TransformException& ex)
-        {
-            RCLCPP_INFO_STREAM(this->get_logger(), "ERRORE NEL CALCOLO DELLA 1° TRASFORMATA " << ex.what());
-        }
-        Eigen::Quaterniond b_quat_rinit(trasformata.transforms[0].transform.rotation.w,trasformata.transforms[0].transform.rotation.x,trasformata.transforms[0].transform.rotation.y,trasformata.transforms[0].transform.rotation.z);
-        b_quat_rinit.normalize();
-        Eigen::Matrix3d b_R_7init=b_quat_rinit.toRotationMatrix();
-        Eigen::Vector3d b_p_7init(trasformata.transforms[0].transform.translation.x,trasformata.transforms[0].transform.translation.y,trasformata.transforms[0].transform.translation.z);
 
-        Eigen::Matrix4d b_T_7init;
-        b_T_7init.block<3,3>(0,0)=b_R_7init;
-        b_T_7init.block<3,1>(0,3)=b_p_7init;
-        b_T_7init.block<1,4>(3,0)=Eigen::Vector4d(0,0,0,1);
+        const Eigen::Isometry3d& b_T_rinit_iso = robot_->fkine(q_DH);
+        position_des_ = b_T_rinit_iso.translation();
+        b_R_rinit = b_T_rinit_iso.rotation();
+        b_T_rinit.block<3,3>(0,0)=b_R_rinit;
+        b_T_rinit.block<3,1>(0,3)=position_des_;
+        b_T_rinit.block<1,4>(3,0)=Eigen::Vector4d(0,0,0,1);
 
-        b_T_rinit=b_T_7init*T_7_racchetta_con;
-        b_R_rinit=b_T_rinit.block<3,3>(0,0);
-
-        position_des_=b_T_rinit.block<3,1>(0,3);
+        
+        // Estraggo il quaternione
         quaternion_des_=Eigen::Quaterniond(b_R_rinit);
         quaternion_des_.normalize();
         oldQuaternion_=quaternion_des_;
+        //attivo il clik
 
         //attivo il clik
         clik_timer_->reset();
@@ -300,6 +283,7 @@ class CLIKNode : public rclcpp::Node
           angoli_des_->publish(angoli_desiderati);
         */
 
+
         p++;
         if(p%17==0)
         {
@@ -311,21 +295,17 @@ class CLIKNode : public rclcpp::Node
           Eigen::AngleAxisd rotx(0, Eigen::Vector3d::UnitX());
 
           Eigen::Quaternion<double> quat = rotx * roty * rotz; 
-
           quat.normalize();
-          //quat=quaternionContinuity(quat,oldQuaternion_);
-          //quat.normalize();
+      
           Eigen::Matrix3d rinit_R_des = quat.matrix();
-
           Eigen::Matrix3d b_R_rDesiderata=b_R_rinit*rinit_R_des;
-          Eigen::Vector3d b_p_rDesiderata=b_T_rinit.block<3,1>(0,3);
-          position_des_=b_p_rDesiderata;
 
           // Estraggo il quaternione
           Eigen::Quaterniond quaternion_temp(b_R_rDesiderata);
           quaternion_des_=quaternion_temp;
-          // Assicuro la continuità del quaternion
           quaternion_des_.normalize();
+
+          // Assicuro la continuità del quaternione
           quaternion_des_ = quaternionContinuity(quaternion_des_, oldQuaternion_);
           quaternion_des_.normalize();
 
@@ -336,11 +316,6 @@ class CLIKNode : public rclcpp::Node
           
           Eigen::Vector3d position_temp = b_T_r.translation();
           Eigen::Matrix3d rotation_temp_ = b_T_r.rotation();
-
-          Eigen::Matrix4d b_T_r_matrix;
-          b_T_r_matrix.block<3,3>(0,0)=rotation_temp_;
-          b_T_r_matrix.block<3,1>(0,3)=position_temp;
-          b_T_r_matrix.block<1,4>(3,0)=Eigen::Vector4d(0,0,0,1);
 
           //Estraggo il quaternione
           Eigen::Quaterniond quaternion(rotation_temp_);
@@ -412,7 +387,7 @@ class CLIKNode : public rclcpp::Node
 
         calcolo_angoli_attuati(joint_real,2);
         angoli_reali.header.stamp=joint_real.header.stamp;
-        angoli_real_->publish(angoli_reali);
+        real_angles->publish(angoli_reali);
         
         //Filtraggio del messaggio
         for(int i=0;i<(int)out_msg.data.size();i++)
@@ -540,3 +515,9 @@ int main(int argc, char** argv)
   rclcpp::shutdown();
   return 0;
 }
+
+
+
+
+
+ 

@@ -1,0 +1,28 @@
+{
+  "configurations": [
+    {
+      "browse": {
+        "databaseFilename": "${default}",
+        "limitSymbolsToIncludedHeaders": false
+      },
+      "includePath": [
+        "/home/student/Gianmarco/BallBalancing/install/uclv_robot_lib/include/**",
+        "/home/student/Gianmarco/BallBalancing/install/interfaces/include/**",
+        "/opt/ros/humble/include/**",
+        "/home/student/Gianmarco/BallBalancing/src/RobotControl/control/include/**",
+        "/home/student/Gianmarco/BallBalancing/src/RobotControl/interfaces/include/**",
+        "/home/student/Gianmarco/BallBalancing/src/RobotControl/uclv_robot_lib-main/include/**",
+        "/home/student/Gianmarco/BallBalancing/src/VisionSystem/ball_position/include/**",
+        "/home/student/Gianmarco/BallBalancing/src/VisionSystem/image_parameters/include/**",
+        "/home/student/Gianmarco/BallBalancing/src/reinforcement_learning/include/**",
+        "/usr/include/**"
+      ],
+      "name": "ROS",
+      "intelliSenseMode": "gcc-x64",
+      "compilerPath": "/usr/bin/gcc",
+      "cStandard": "gnu11",
+      "cppStandard": "c++14"
+    }
+  ],
+  "version": 4
+}

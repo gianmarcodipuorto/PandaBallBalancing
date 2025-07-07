@@ -181,7 +181,7 @@ class ControllerLQG : public rclcpp::Node
             
             // Aggiorna la traiettoria desiderata
             //update_desired_trajectory("square_wave");
-            //update_desired_trajectory("circle");
+            update_desired_trajectory("circle");
 
             double soft_start_weight=1-exp(-(p*t_camp)/tau);
 

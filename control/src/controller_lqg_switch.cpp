@@ -70,7 +70,7 @@ class ControllerLQR : public rclcpp::Node
         Eigen::VectorXd zhat = Eigen::VectorXd::Zero(1);
         float z;
         float y;
-        std::vector<double> K_new= {-2.0804, -0.9602,0.7068, 1.4486, 0.1002, 0.0963, 0.0924, 0.0885}; // Q=1000,0,1,1,1,1,0,0,1 R=1000
+        std::vector<double> K_new= {-2.080362627078236, -0.960230563876182,0.706774617862321, 1.448576232766547, 0.100233668147942, 0.09636265455696977, 0.092359760467111, 0.088517529490856}; // Q=1000,0,1,1,1,1,0,0,1 R=1000
         //test
         //std::vector<double> K_new= {-6.4000, -2.0624, 1.4303, 2.9993, 0.2012, 0.1885, 0.1758, 0.1633};   // Q=40000,0,1,1,1,1,0,0,1 R=1000 test1
         //std::vector<double> K_new= {-10.4694, -2.8526, 1.9122, 4.0628, 0.2677, 0.2472, 0.2270, 0.2071};  //Q= 10000,0,1,1,1,1,0,0,1 R=100  test2
@@ -78,7 +78,7 @@ class ControllerLQR : public rclcpp::Node
         //std::vector<double> K_new= {-2.463759821338347, -1.502920737546973,1.134740653012466, 2.305680133240116, 0.161305336866996, 0.155776073130742, 0.149661854010936, 0.142527206049657}; // Q=1000,1000,1,1,0,0,0,0,1 R=1000 test4
         Eigen::Map<Eigen::VectorXd> K_new_ = Eigen::Map<Eigen::VectorXd>(K_new.data(), K_new.size());
 
-        std::vector<double> K_int= {-1.7778};   // Q=1000,0,1,1,1,1,0,0,1 R=1000
+        std::vector<double> K_int= {-1.777826783310392};   // Q=1000,0,1,1,1,1,0,0,1 R=1000
         //test
         //std::vector<double> K_int= {-1.7124}; / Q=40000,0,1,1,1,1,0,0,1 R=1000   test1
         //std::vector<double> K_int= {-5.2500}; //Q= 10000,0,1,1,1,1,0,0,1 R=100    test2
@@ -170,13 +170,13 @@ class ControllerLQR : public rclcpp::Node
                     timer_->reset();
 
                 }
-                if(integrator_on==true && fabs(y_des-y)<0.005 && fabs(z_des-z)<0.005)
+                if(integrator_on==true && fabs(y_des-y)<0.006 && fabs(z_des-z)<0.006)
                 {
                     integrator_on=false;
                     
                     RCLCPP_INFO_STREAM(this->get_logger(),"integratore OFF");
                 }
-                else if(integrator_on==false && (fabs(y_des-y)>0.014 || fabs(z_des-z)>0.014))
+                else if(integrator_on==false && (fabs(y_des-y)>0.01 || fabs(z_des-z)>0.01))
                 {
                     integrator_on=true;
                    
